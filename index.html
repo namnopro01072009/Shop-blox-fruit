@@ -1,116 +1,219 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Shop Blox Fruits</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    h1 {
-      color: orange;
-    }
-
-    .box {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 10px orange;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 5px;
-    }
-
-    button {
-      background: orange;
-      color: black;
-      border: none;
-      padding: 10px;
-      width: 100%;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    #switchMode {
-      margin-top: 10px;
-      color: #aaa;
-      cursor: pointer;
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Blox Fruit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        section {
+            margin: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .account-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .account-list li {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
 </head>
 <body>
-  <div class="box">
-    <h1 id="title">Đăng nhập</h1>
-    <input type="text" id="username" placeholder="Tên đăng nhập">
-    <input type="password" id="password" placeholder="Mật khẩu">
-    <button onclick="submitForm()">Tiếp tục</button>
-    <div id="switchMode" onclick="toggleMode()">Chưa có tài khoản? Đăng ký</div>
-  </div>
 
-  <script>
-    let isLogin = true;
+<header>
+    <h1>Shop Blox Fruit</h1>
+</header>
 
-    function toggleMode() {
-      isLogin = !isLogin;
-      document.getElementById("title").innerText = isLogin ? "Đăng nhập" : "Đăng ký";
-      document.getElementById("switchMode").innerText = isLogin ? "Chưa có tài khoản? Đăng ký" : "Đã có tài khoản? Đăng nhập";
-    }
+<!-- Đăng nhập -->
+<section id="login-section">
+    <h2>Đăng Nhập</h2>
+    <form id="login-form">
+        <label for="username">Tên tài khoản:</label>
+        <input type="text" id="username" required>
+        <label for="password">Mật khẩu:</label>
+        <input type="password" id="password" required>
+        <button type="submit">Đăng nhập</button>
+    </form>
+</section>
 
-    function submitForm() {
-      const user = document.getElementById("username").value.trim();
-      const pass = document.getElementById("password").value.trim();
+<!-- Phần đăng bán tài khoản -->
+<section id="sell-account-section" style="display:none;">
+    <h2>Đăng Bán Tài Khoản</h2>
+    <form id="sell-account-form">
+        <label for="account-name">Tên tài khoản:</label>
+        <input type="text" id="account-name" required>
+        <label for="account-details">Chi tiết tài khoản:</label>
+        <textarea id="account-details" required></textarea>
+        <label for="account-price">Giá bán (VND):</label>
+        <input type="number" id="account-price" required>
+        <button type="submit">Đăng bán</button>
+    </form>
+</section>
 
-      if (!user || !pass) {
-        alert("Vui lòng nhập đầy đủ thông tin!");
-        return;
-      }
+<!-- Phần xem tài khoản đã đăng bán -->
+<section id="account-list-section" style="display:none;">
+    <h2>Tài Khoản Đã Đăng Bán</h2>
+    <ul id="account-list" class="account-list"></ul>
+</section>
 
-      let users = JSON.parse(localStorage.getItem("users") || "[]");
+<!-- Phần quản lý admin -->
+<section id="admin-section" style="display:none;">
+    <h2>Quản Lý Admin</h2>
+    <form id="withdraw-form">
+        <label for="withdraw-amount">Số tiền cần rút (VND):</label>
+        <input type="number" id="withdraw-amount" required>
+        <button type="submit">Rút Tiền</button>
+    </form>
+</section>
 
-      if (isLogin) {
-        let found = users.find(u => u.username === user && u.password === pass);
-        if (found) {
-          localStorage.setItem("currentUser", JSON.stringify(found));
-          alert("Đăng nhập thành công!");
-          window.location.href = "home.html"; // sẽ tạo sau
+<script>
+    // Kiểm tra quyền đăng nhập
+    let currentUser = null;
+
+    // Dữ liệu admin (chỉ cho admin rút tiền)
+    let adminData = {
+        username: 'admin',
+        password: '123456',  // Mật khẩu admin
+        balance: 1000  // Số dư ban đầu của admin
+    };
+
+    // Xử lý đăng nhập
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // Kiểm tra tên tài khoản và mật khẩu (đã thay đổi để yêu cầu mật khẩu)
+        if (username === adminData.username && password === adminData.password) {
+            currentUser = username;
+            loginSuccess();
         } else {
-          alert("Sai tài khoản hoặc mật khẩu!");
+            alert('Tài khoản hoặc mật khẩu không chính xác');
         }
-      } else {
-        if (users.some(u => u.username === user)) {
-          alert("Tài khoản đã tồn tại!");
-          return;
+    });
+
+    // Khi đăng nhập thành công, hiển thị các phần tương ứng
+    function loginSuccess() {
+        // Ẩn phần đăng nhập
+        document.getElementById('login-section').style.display = 'none';
+
+        // Hiển thị phần đăng bán tài khoản
+        document.getElementById('sell-account-section').style.display = 'block';
+
+        // Nếu là admin, hiển thị phần quản lý admin
+        if (currentUser === adminData.username) {
+            document.getElementById('admin-section').style.display = 'block';
         }
-        const newUser = {
-          username: user,
-          password: pass,
-          role: users.length === 0 ? "admin" : "user", // tài khoản đầu là admin
-          balance: 0
-        };
-        users.push(newUser);
-        localStorage.setItem("users", JSON.stringify(users));
-        alert("Đăng ký thành công! Đăng nhập để tiếp tục.");
-        toggleMode();
-      }
+
+        // Hiển thị danh sách tài khoản đã đăng bán
+        showAccountList();
     }
-  </script>
+
+    // Đăng bán tài khoản
+    document.getElementById('sell-account-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const accountName = document.getElementById('account-name').value;
+        const accountDetails = document.getElementById('account-details').value;
+        const accountPrice = document.getElementById('account-price').value;
+
+        // Kiểm tra thông tin
+        if (!accountName || !accountDetails || !accountPrice) {
+            alert('Vui lòng điền đầy đủ thông tin.');
+            return;
+        }
+
+        const account = {
+            name: accountName,
+            details: accountDetails,
+            price: accountPrice
+        };
+
+        let accountList = JSON.parse(localStorage.getItem('accountList')) || [];
+        accountList.push(account);
+        localStorage.setItem('accountList', JSON.stringify(accountList));
+
+        // Cập nhật danh sách tài khoản đã đăng bán
+        alert('Tài khoản đã được đăng bán.');
+        showAccountList();
+    });
+
+    // Hiển thị danh sách tài khoản đã đăng bán
+    function showAccountList() {
+        const accountList = JSON.parse(localStorage.getItem('accountList')) || [];
+        const accountListContainer = document.getElementById('account-list');
+        accountListContainer.innerHTML = '';  // Xóa danh sách cũ
+
+        accountList.forEach(account => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `Tên tài khoản: ${account.name} - Chi tiết: ${account.details} - Giá: ${account.price} VND`;
+            accountListContainer.appendChild(listItem);
+        });
+
+        document.getElementById('account-list-section').style.display = 'block';
+    }
+
+    // Rút tiền cho admin
+    document.getElementById('withdraw-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const withdrawAmount = parseInt(document.getElementById('withdraw-amount').value);
+
+        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
+            alert('Số tiền rút không hợp lệ.');
+            return;
+        }
+
+        if (adminData.balance < withdrawAmount) {
+            alert('Số dư không đủ để rút.');
+            return;
+        }
+
+        adminData.balance -= withdrawAmount;
+        alert(`Admin đã rút ${withdrawAmount} VND thành công.`);
+    });
+</script>
+
 </body>
-</html>
+  </html>
