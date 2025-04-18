@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Shop Blox Fruits</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      color: orange;
+    }
+
+    .box {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 10px orange;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+    }
+
+    button {
+      background: orange;
+      color: black;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #switchMode {
+      margin-top: 10px;
+      color: #aaa;
+      cursor: pointer;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1 id="title">Đăng nhập</h1>
+    <input type="text" id="username" placeholder="Tên đăng nhập">
+    <input type="password" id="password" placeholder="Mật khẩu">
+    <button onclick="submitForm()">Tiếp tục</button>
+    <div id="switchMode" onclick="toggleMode()">Chưa có tài khoản? Đăng ký</div>
+  </div>
+
+  <script>
+    let isLogin = true;
+
+    function toggleMode() {
+      isLogin = !isLogin;
+      document.getElementById("title").innerText = isLogin ? "Đăng nhập" : "Đăng ký";
+      document.getElementById("switchMode").innerText = isLogin ? "Chưa có tài khoản? Đăng ký" : "Đã có tài khoản? Đăng nhập";
+    }
+
+    function submitForm() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+
+      if (!user || !pass) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      if (isLogin) {
+        let found = users.find(u => u.username === user && u.password === pass);
+        if (found) {
+          localStorage.setItem("currentUser", JSON.stringify(found));
+          alert("Đăng nhập thành công!");
+          window.location.href = "home.html"; // sẽ tạo sau
+        } else {
+          alert("Sai tài khoản hoặc mật khẩu!");
+        }
+      } else {
+        if (users.some(u => u.username === user)) {
+          alert("Tài khoản đã tồn tại!");
+          return;
+        }
+        const newUser = {
+          username: user,
+          password: pass,
+          role: users.length === 0 ? "admin" : "user", // tài khoản đầu là admin
+          balance: 0
+        };
+        users.push(newUser);
+        localStorage.setItem("users", JSON.stringify(users));
+        alert("Đăng ký thành công! Đăng nhập để tiếp tục.");
+        toggleMode();
+      }
+    }
+  </script>
+</body>
+</html>
